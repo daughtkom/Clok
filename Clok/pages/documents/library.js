@@ -4,6 +4,7 @@
     "use strict";
 
     var appData = Windows.Storage.ApplicationData.current;
+    var dataTransferManager = Windows.ApplicationModel.DataTransfer.DataTransferManager;
 
     var createOption = Windows.Storage.CreationCollisionOption;
     var pickerLocationId = Windows.Storage.Pickers.PickerLocationId;
@@ -27,13 +28,19 @@
             openDocumentCommand.winControl.onclick = this.openDocumentCommand_click.bind(this);
             openWithDocumentCommand.winControl.onclick = this.openWithDocumentCommand_click.bind(this);
             exportDocumentsCommand.winControl.onclick = this.exportDocumentsCommand_click.bind(this);
+            shareDocumentsCommand.winControl.onclick = this.shareDocumentsCommand_click.bind(this);
             deleteDocumentsCommand.winControl.onclick = this.deleteDocumentsCommand_click.bind(this);
             addDocumentsCommand.winControl.onclick = this.addDocumentsCommand_click.bind(this);
 
+            var transferMgr = dataTransferManager.getForCurrentView();
+            this.transferMgr_dataRequested_boundThis = this.transferMgr_dataRequested.bind(this);
+
+            transferMgr.addEventListener("datarequested", this.transferMgr_dataRequested_boundThis);
         },
 
         unload: function () {
-            // TODO: Respond to navigations away from this page.
+            var transferMgr = dataTransferManager.getForCurrentView();
+            transferMgr.removeEventListener("datarequested", this.transferMgr_dataRequested_boundThis);
         },
 
         updateLayout: function (element, viewState, lastViewState) {
@@ -64,7 +71,7 @@
         },
 
 
-        getProjectFolder: function() {
+        getProjectFolder: function () {
             if (this.projectId) {
                 var projectId = this.projectId;
 
@@ -86,29 +93,29 @@
                 var singleItem = thumbnailMode.singleItem;
 
                 this.getProjectFolder().then(function (folder) {
-                        var fileQuery = folder.createFileQuery();
+                    var fileQuery = folder.createFileQuery();
 
-                        var dataSourceOptions = {
-                            mode: singleItem,
-                            requestedThumbnailSize: 64,
-                            thumbnailOptions: resizeThumbnail
-                        };
+                    var dataSourceOptions = {
+                        mode: singleItem,
+                        requestedThumbnailSize: 64,
+                        thumbnailOptions: resizeThumbnail
+                    };
 
-                        var dataSource = new WinJS.UI.StorageDataSource(fileQuery, dataSourceOptions);
-                    
-                        dataSource.getCount().then(function (count) {
-                            this.initialDocumentCount = count;
+                    var dataSource = new WinJS.UI.StorageDataSource(fileQuery, dataSourceOptions);
 
-                            if (count >= 1) {
-                                libraryListView.winControl.itemDataSource = dataSource;
-                                WinJS.Utilities.addClass(noDocuments, "hidden");
-                                WinJS.Utilities.removeClass(libraryListView, "hidden");
-                            } else {
-                                WinJS.Utilities.removeClass(noDocuments, "hidden");
-                                WinJS.Utilities.addClass(libraryListView, "hidden");
-                            } 
-                        }.bind(this));
+                    dataSource.getCount().then(function (count) {
+                        this.initialDocumentCount = count;
+
+                        if (count >= 1) {
+                            libraryListView.winControl.itemDataSource = dataSource;
+                            WinJS.Utilities.addClass(noDocuments, "hidden");
+                            WinJS.Utilities.removeClass(libraryListView, "hidden");
+                        } else {
+                            WinJS.Utilities.removeClass(noDocuments, "hidden");
+                            WinJS.Utilities.addClass(libraryListView, "hidden");
+                        }
                     }.bind(this));
+                }.bind(this));
             }
         },
 
@@ -120,18 +127,21 @@
                 openDocumentCommand.winControl.disabled = true;
                 openWithDocumentCommand.winControl.disabled = true;
                 exportDocumentsCommand.winControl.disabled = true;
+                shareDocumentsCommand.winControl.disabled = true;
                 deleteDocumentsCommand.winControl.disabled = true;
                 libraryAppBar.winControl.hide();
             } else if (selectionCount > 1) {
                 openDocumentCommand.winControl.disabled = true;
                 openWithDocumentCommand.winControl.disabled = true;
                 exportDocumentsCommand.winControl.disabled = false;
+                shareDocumentsCommand.winControl.disabled = false;
                 deleteDocumentsCommand.winControl.disabled = false;
                 libraryAppBar.winControl.show();
             } else { // if (selectionCount === 1) {
                 openDocumentCommand.winControl.disabled = false;
                 openWithDocumentCommand.winControl.disabled = false;
                 exportDocumentsCommand.winControl.disabled = false;
+                shareDocumentsCommand.winControl.disabled = false;
                 deleteDocumentsCommand.winControl.disabled = false;
                 libraryAppBar.winControl.show();
             }
@@ -233,6 +243,10 @@
 
         },
 
+        shareDocumentsCommand_click: function (e) {
+            dataTransferManager.showShareUI();
+        },
+
         deleteDocumentsCommand_click: function (e) {
             var msg = new Windows.UI.Popups.MessageDialog("This cannot be undone.  Do you wish to continue?", "You're about to permanently delete files.");
 
@@ -262,9 +276,6 @@
             msg.showAsync();
         },
 
-
-
-
         canOpenPicker: function () {
             var views = Windows.UI.ViewManagement;
 
@@ -276,87 +287,125 @@
             return true;
         },
 
+        transferMgr_dataRequested: function (e) {
+            var request = e.request;
+            var selectionCount = libraryListView.winControl.selection.count();
+
+            if (selectionCount <= 0) {
+                request.failWithDisplayText("Please select one or more documents and try again.");
+                return;
+            }
+
+            libraryListView.winControl.selection.getItems()
+                .then(function (selectedItems) {
+                    var project = storage.projects.getById(this.projectId);
+
+                    if (selectionCount === 1 && isImageType(selectedItems[0].data.fileType)) {
+                        // handle single image
+                        request.data.properties.title = "Image shared from Clok project";
+                        request.data.properties.description
+                            = "From " + project.name + " (" + project.clientName + ")";
+
+                        var streamRef = Windows.Storage.Streams.RandomAccessStreamReference;
+                        var stream = streamRef.createFromFile(selectedItems[0].data);
+                        request.data.properties.thumbnail = stream;
+                        request.data.setBitmap(stream);
+                    } else {
+                        // handle non-images or multiple files
+                        request.data.properties.title = "File(s) shared from Clok project";
+                        request.data.properties.description
+                            = selectionCount.toString() + " file(s) from " + project.name + " (" + project.clientName + ")";
+                    }
+
+                    // share as files whether single image, non-images or multiple files
+                    var files = selectedItems.map(function (item) {
+                        return item.data;
+                    });
+
+                    request.data.setStorageItems(files);
+                }.bind(this));
+        },
 
     });
 
 
 
-function bindLibraryItem(source, sourceProperty, destination, destinationProperty) {
-    var filenameElement = destination.querySelector(".libraryItem-filename");
-    var modifiedElement = destination.querySelector(".libraryItem-modified");
-    var sizeElement = destination.querySelector(".libraryItem-size");
-    var iconElement = destination.querySelector(".libraryItem-icon");
+    function bindLibraryItem(source, sourceProperty, destination, destinationProperty) {
+        var filenameElement = destination.querySelector(".libraryItem-filename");
+        var modifiedElement = destination.querySelector(".libraryItem-modified");
+        var sizeElement = destination.querySelector(".libraryItem-size");
+        var iconElement = destination.querySelector(".libraryItem-icon");
 
-    filenameElement.innerText = source.name;
+        filenameElement.innerText = source.name;
 
-    modifiedElement.innerText = source.basicProperties
-        && source.basicProperties.dateModified
-        && formatDateTime(source.basicProperties.dateModified);
+        modifiedElement.innerText = source.basicProperties
+            && source.basicProperties.dateModified
+            && formatDateTime(source.basicProperties.dateModified);
 
-    var size = source.basicProperties && source.basicProperties.size;
-    if (size > (Math.pow(1024, 3))) {
-        sizeElement.innerText = (size / Math.pow(1024, 3)).toFixed(1) + " GB";
-    }
-    else if (size > (Math.pow(1024, 2))) {
-        sizeElement.innerText = (size / Math.pow(1024, 2)).toFixed(1) + " MB";
-    }
-    else if (size > 1024) {
-        sizeElement.innerText = (size / 1024).toFixed(1) + " KB";
-    }
-    else {
-        sizeElement.innerText = size + " B";
-    }
+        var size = source.basicProperties && source.basicProperties.size;
+        if (size > (Math.pow(1024, 3))) {
+            sizeElement.innerText = (size / Math.pow(1024, 3)).toFixed(1) + " GB";
+        }
+        else if (size > (Math.pow(1024, 2))) {
+            sizeElement.innerText = (size / Math.pow(1024, 2)).toFixed(1) + " MB";
+        }
+        else if (size > 1024) {
+            sizeElement.innerText = (size / 1024).toFixed(1) + " KB";
+        }
+        else {
+            sizeElement.innerText = size + " B";
+        }
 
 
-    var url;
+        var url;
 
-    if (source.thumbnail && isImageType(source.fileType)) {
-        url = URL.createObjectURL(source.thumbnail, { oneTimeOnly: true });
-    } else {
-        url = getIcon(source.fileType);
-    }
+        if (source.thumbnail && isImageType(source.fileType)) {
+            url = URL.createObjectURL(source.thumbnail, { oneTimeOnly: true });
+        } else {
+            url = getIcon(source.fileType);
+        }
 
-    iconElement.src = url;
-    iconElement.title = source.displayType;
-}
-
-function formatDateTime(dt) {
-    var formatting = Windows.Globalization.DateTimeFormatting;
-    var dateFormatter = new formatting.DateTimeFormatter("shortdate");
-    var timeFormatter = new formatting.DateTimeFormatter("shorttime");
-    return dateFormatter.format(dt) + " " + timeFormatter.format(dt);
-}
-
-function isImageType(fileType) {
-    fileType = (fileType || "").toLocaleUpperCase();
-
-    return fileType === ".PNG"
-        || fileType === ".GIF"
-        || fileType === ".JPG"
-        || fileType === ".JPEG"
-        || fileType === ".BMP";
-}
-
-function getIcon(fileType) {
-    fileType = (fileType || "").replace(".", "");
-
-    var knownTypes = ["WAV", "XLS", "XLSX", "ZIP",
-        "AI", "BMP", "DOC", "DOCX", "EPS", "GIF",
-        "ICO", "JPEG", "JPG", "MP3", "PDF", "PNG",
-        "PPT", "PPTX", "PSD", "TIFF", "VSD", "VSDX"];
-
-    if (knownTypes.indexOf(fileType.toLocaleUpperCase()) >= 0) {
-        return "/images/fileTypes/" + fileType + ".png";
+        iconElement.src = url;
+        iconElement.title = source.displayType;
     }
 
-    return "/images/fileTypes/default.png";
-}
+    function formatDateTime(dt) {
+        var formatting = Windows.Globalization.DateTimeFormatting;
+        var dateFormatter = new formatting.DateTimeFormatter("shortdate");
+        var timeFormatter = new formatting.DateTimeFormatter("shorttime");
+        return dateFormatter.format(dt) + " " + timeFormatter.format(dt);
+    }
 
-WinJS.Utilities.markSupportedForProcessing(bindLibraryItem);
+    function isImageType(fileType) {
+        fileType = (fileType || "").toLocaleUpperCase();
 
-WinJS.Namespace.define("Clok.Library", {
-    bindLibraryItem: bindLibraryItem,
-});
+        return fileType === ".PNG"
+            || fileType === ".GIF"
+            || fileType === ".JPG"
+            || fileType === ".JPEG"
+            || fileType === ".BMP";
+    }
+
+    function getIcon(fileType) {
+        fileType = (fileType || "").replace(".", "");
+
+        var knownTypes = ["WAV", "XLS", "XLSX", "ZIP",
+            "AI", "BMP", "DOC", "DOCX", "EPS", "GIF",
+            "ICO", "JPEG", "JPG", "MP3", "PDF", "PNG",
+            "PPT", "PPTX", "PSD", "TIFF", "VSD", "VSDX"];
+
+        if (knownTypes.indexOf(fileType.toLocaleUpperCase()) >= 0) {
+            return "/images/fileTypes/" + fileType + ".png";
+        }
+
+        return "/images/fileTypes/default.png";
+    }
+
+    WinJS.Utilities.markSupportedForProcessing(bindLibraryItem);
+
+    WinJS.Namespace.define("Clok.Library", {
+        bindLibraryItem: bindLibraryItem,
+    });
 
 })();
 

@@ -193,6 +193,27 @@
         }
     );
 
+    storage.projects.searchProjects = function (queryText) {
+        var filtered = this
+            .createFiltered(function (p) {
+                if (p.status == data.ProjectStatuses.Deleted) return false;
+
+                if (!queryText) return false;
+
+                if ((p.name.toUpperCase().indexOf(queryText.toUpperCase()) >= 0)
+                        || (p.clientName.toUpperCase().indexOf(queryText.toUpperCase()) >= 0)
+                        || (p.projectNumber.toUpperCase().indexOf(queryText.toUpperCase()) >= 0)) {
+
+                    return true;
+                }
+
+                return false;
+
+            });
+
+        return filtered.createSorted(storage.compareProjects);
+    };
+
     storage.projects.getGroupedProjectsByStatus = function (statuses) {
         var filtered = this
             .createFiltered(function (p) {

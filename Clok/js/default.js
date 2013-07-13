@@ -15,7 +15,8 @@
     var roamingSettings = appData.roamingSettings;
 
     app.addEventListener("activated", function (args) {
-        if (args.detail.kind === activation.ActivationKind.launch) {
+        if ((args.detail.kind === activation.ActivationKind.launch)
+                || (args.detail.kind === activation.ActivationKind.search)) {
 
             var extender = new Clok.SplashScreen.Extender(
                 extendedSplash,
@@ -86,7 +87,32 @@
         args.setPromise(WinJS.UI.processAll().then(function () {
             configureClock();
 
-            if (nav.location) {
+            if (args.detail.kind === activation.ActivationKind.search) {
+                var searchPageURI = "/pages/searchResults/searchResults.html";
+                var execState = activation.ApplicationExecutionState;
+
+                if (args.detail.queryText === "") {
+                    if ((args.detail.previousExecutionState === execState.closedByUser)
+                            || (args.detail.previousExecutionState === execState.notRunning)) {
+                        return nav.navigate(Application.navigator.home);
+                    } else if ((args.detail.previousExecutionState === execState.suspended)
+                            || (args.detail.previousExecutionState === execState.terminated)) {
+                        return nav.navigate(nav.location, nav.state);
+                    }
+                    else {
+                        return nav.navigate(searchPageURI, { queryText: args.detail.queryText });
+                    }
+                } else {
+                    if (!nav.location) {
+                        nav.history.current = {
+                            location: Application.navigator.home,
+                            initialState: {}
+                        };
+                    }
+
+                    return nav.navigate(searchPageURI, { queryText: args.detail.queryText });
+                }
+            } else if (nav.location) {
                 nav.history.current.initialPlaceholder = true;
                 return nav.navigate(nav.location, nav.state);
             } else {
@@ -116,6 +142,9 @@
 
         roamingSettings.values["enableIndexedDbHelper"] =
             roamingSettings.values["enableIndexedDbHelper"] || false;
+
+        roamingSettings.values["hideTimeSheetClipboardMessage"] =
+            roamingSettings.values["hideTimeSheetClipboardMessage"] || false;
     };
 
     app.start();

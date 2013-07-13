@@ -32,6 +32,7 @@
             addTimeEntryCommand.winControl.onclick = this.addTimeEntryCommand_click.bind(this);
             graphTimeEntriesCommand.winControl.onclick = this.graphTimeEntriesCommand_click.bind(this);
             deleteTimeEntriesCommand.winControl.onclick = this.deleteTimeEntriesCommand_click.bind(this);
+            copyForExcelCommand.winControl.onclick = this.copyForExcelCommand_click.bind(this);
 
             Clok.Utilities.DisableInSnappedView();
         },
@@ -199,6 +200,55 @@
                 });
         },
 
+        copyForExcelCommand_click: function (e) {
+            timeEntriesListView.winControl.selection.getItems()
+            .then(function (selectedItems) {
+                var dateFormatting = Windows.Globalization.DateTimeFormatting;
+                var dateFormatter = new dateFormatting.DateTimeFormatter("shortdate");
+
+                var rows = selectedItems.map(function (item) {
+                    return [
+                        this.removeExtraWhitespace(item.data.project.projectNumber),
+                        this.removeExtraWhitespace(item.data.project.name),
+                        this.removeExtraWhitespace(item.data.project.clientName),
+                        dateFormatter.format(item.data.dateWorked),
+                        Clok.Utilities.SecondsToHours(item.data.elapsedSeconds, true),
+                        this.removeExtraWhitespace(item.data.notes),
+                    ].join("\t");
+                }.bind(this));
+
+                var headerRow = "Project Number\tProject Name\tClient\tDate\tHours\tNotes";
+                var tsvData = headerRow + "\r\n" + rows.join("\r\n");
+
+                var dataPackage = new Windows.ApplicationModel.DataTransfer.DataPackage();
+                dataPackage.requestedOperation = Windows.ApplicationModel.DataTransfer.DataPackageOperation.move;
+                dataPackage.setText(tsvData);
+                Windows.ApplicationModel.DataTransfer.Clipboard.setContent(dataPackage);
+
+                return WinJS.Promise.as(true);
+            }.bind(this))
+            .then(function complete(result) {
+
+                var appData = Windows.Storage.ApplicationData.current;
+                var roamingSettings = appData.roamingSettings;
+                if (!roamingSettings.values["hideTimeSheetClipboardMessage"]) {
+                    new Windows.UI.Popups
+                        .MessageDialog("The selected time entries have been copied to the clipboard "
+                            + "in an Excel-compatible format.  Open Excel and paste the data."
+                            + "\r\n\r\nYou can disable this message in Clok Options.", "Data copied.")
+                        .showAsync();
+                }
+            }, function error(result) {
+                new Windows.UI.Popups
+                    .MessageDialog("Could not copy all selected records.", "An error occurred. ")
+                    .showAsync();
+            });
+        },
+
+        removeExtraWhitespace: function (s) {
+            return (s || "").replace(/[\t\r\n]/g, ' ');
+        },
+
         timeEntriesListView_selectionChanged: function (e) {
             // Get the number of currently selected items
             var selectionCount = timeEntriesListView.winControl.selection.count();
@@ -206,15 +256,17 @@
             // Report the number
             if (selectionCount <= 0) {
                 this.showAddForm();
+                copyForExcelCommand.winControl.disabled = true;
                 timeEntryAppBar.winControl.hide();
             } else if (selectionCount > 1) {
                 this.disableEditForm();
+                copyForExcelCommand.winControl.disabled = false;
                 timeEntryAppBar.winControl.show();
             } else { // if (selectionCount === 1) {
                 this.enableEditForm();
+                copyForExcelCommand.winControl.disabled = false;
                 timeEntryAppBar.winControl.show();
             }
-
         },
 
         showAddForm: function () {

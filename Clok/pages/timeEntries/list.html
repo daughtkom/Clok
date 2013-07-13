@@ -55,6 +55,17 @@
         <button
             data-win-control="WinJS.UI.AppBarCommand"
             data-win-options="{
+                id:'copyForExcelCommand',
+                label:'Copy for Excel',
+                icon:'url(/images/Excel-export-small-sprites.png)',
+                section:'selection',
+                tooltip:'Copy for Excel',
+                disabled: true}">
+        </button>
+
+        <button
+            data-win-control="WinJS.UI.AppBarCommand"
+            data-win-options="{
                 id:'graphTimeEntriesCommand',
                 label:'Graph',
                 icon:'url(/images/chart-small-sprites.png)',

@@ -91,10 +91,12 @@
     <Content Include="images\filetypes\zip.png" />
     <Content Include="images\logo.png" />
     <Content Include="images\Projects.png" />
+    <Content Include="images\Excel-export-small-sprites.png" />
     <Content Include="images\smalllogo.png" />
     <Content Include="images\splashscreen.png" />
     <Content Include="images\storelogo.png" />
     <Content Include="images\Thumb-Down.png" />
+    <Content Include="images\Share-small-sprites.png" />
     <Content Include="images\Timesheet-small-sprites.png" />
     <Content Include="images\Timesheet.png" />
     <Content Include="js\extendedSplash.js" />
@@ -121,6 +123,12 @@
     <Content Include="pages\projects\list.css" />
     <Content Include="pages\projects\list.html" />
     <Content Include="pages\projects\list.js" />
+    <Content Include="pages\searchResults\searchResults.css" />
+    <Content Include="pages\searchResults\searchResults.html" />
+    <Content Include="pages\searchResults\searchResults.js" />
+    <Content Include="pages\shareTarget\shareTarget.css" />
+    <Content Include="pages\shareTarget\shareTarget.html" />
+    <Content Include="pages\shareTarget\shareTarget.js" />
     <Content Include="pages\timeEntries\graph.css" />
     <Content Include="pages\timeEntries\graph.html" />
     <Content Include="pages\timeEntries\graph.js" />

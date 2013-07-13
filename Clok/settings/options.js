@@ -14,6 +14,8 @@
             clockSecondsToggle.onchange = this.clockSecondsToggle_change;
             clockModeToggle.onchange = this.clockModeToggle_change;
 
+            timeSheetClipboardMessageToggle.onchange = this.timeSheetClipboardMessageToggle_change;
+
             bingMapsTimeout_2000.onchange = this.bingMapsTimeout_change;
             bingMapsTimeout_5000.onchange = this.bingMapsTimeout_change;
             bingMapsTimeout_10000.onchange = this.bingMapsTimeout_change;
@@ -32,6 +34,11 @@
 
             clockModeToggle.winControl.checked =
                 roamingSettings.values["clockMode"] === Clok.UI.ClockModes.CurrentTime24;
+
+
+            timeSheetClipboardMessageToggle.winControl.checked =
+                !roamingSettings.values["hideTimeSheetClipboardMessage"];
+
 
             switch (roamingSettings.values["bingMapsTimeout"]) {
                 case 5000:
@@ -66,6 +73,11 @@
                 : Clok.UI.ClockModes.CurrentTime12;
 
             appData.signalDataChanged();
+        },
+
+        timeSheetClipboardMessageToggle_change: function (e) {
+            roamingSettings.values["hideTimeSheetClipboardMessage"] =
+                (!timeSheetClipboardMessageToggle.winControl.checked);
         },
 
         bingMapsTimeout_change: function (e) {

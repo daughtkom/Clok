@@ -54,6 +54,17 @@
         <button
             data-win-control="WinJS.UI.AppBarCommand"
             data-win-options="{
+                id:'shareDocumentsCommand',
+                label:'Share',
+                icon:'url(/images/Share-small-sprites.png)',
+                section:'selection',
+                tooltip:'Share',
+                disabled: true}">
+        </button>
+
+        <button
+            data-win-control="WinJS.UI.AppBarCommand"
+            data-win-options="{
                 id:'deleteDocumentsCommand',
                 label:'Delete',
                 icon:'delete',
