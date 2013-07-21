@@ -1,4 +1,5 @@
-﻿/// <reference path="/data/data.js" />
+﻿/// <reference path="/js/printing.js" />
+/// <reference path="/data/data.js" />
 
 // For an introduction to the Page Control template, see the following documentation:
 // http://go.microsoft.com/fwlink/?LinkId=232511
@@ -13,9 +14,17 @@
         // This function is called whenever a user navigates to this page. It
         // populates the page elements with the app's data.
         ready: function (element, options) {
+            this.printer = new Clok.Printer();
+            this.printer.register("Project Detail", function (e) {
+                if (e.completion === Windows.Graphics.Printing.PrintTaskCompletion.failed) {
+                    // printing failed
+                }
+            });
+
             this.setCurrentProject(options);
 
             this.configureAppBar(options && options.id);
+            this.configurePrintDocument(options && options.id);
             var form = document.getElementById("projectDetailForm");
             WinJS.Binding.processAll(form, this.currProject);
 
@@ -27,6 +36,7 @@
             goToTimeEntriesCommand.onclick = this.goToTimeEntriesCommand_click.bind(this);
             goToDocumentsCommand.onclick = this.goToDocumentsCommand_click.bind(this);
             goToDirectionsCommand.onclick = this.goToDirectionsCommand_click.bind(this);
+            printCommand.onclick = this.printCommand_click.bind(this);
 
             this.app_checkpoint_boundThis = this.checkpoint.bind(this);
             app.addEventListener("checkpoint", this.app_checkpoint_boundThis);
@@ -38,15 +48,16 @@
                 }.bind(this));
 
             projectStatus.addEventListener("change", function (e) {
-                    this.populateProjectFromForm();
-                    app.sessionState.currProject = this.currProject;
-                }.bind(this));
+                this.populateProjectFromForm();
+                app.sessionState.currProject = this.currProject;
+            }.bind(this));
         },
 
         unload: function () {
             // TODO: Respond to navigations away from this page.
             app.sessionState.currProject = null;
             app.removeEventListener("checkpoint", this.app_checkpoint_boundThis);
+            this.printer.unregister();
         },
 
         checkpoint: function () {
@@ -59,8 +70,6 @@
             this.configureLayout();
         },
 
-
-
         configureLayout: function () {
             var viewState = Windows.UI.ViewManagement.ApplicationView.value;
 
@@ -72,7 +81,6 @@
                 dueDate.winControl.monthPattern = "{month.full}";
             }
         },
-
 
         saveProjectCommand_click: function (e) {
             // don't set the required attribute until the first submit attempt
@@ -115,6 +123,11 @@
             }
         },
 
+        printCommand_click: function (e) {
+            //window.print();
+            this.printer.print();
+        },
+
         setCurrentProject: function (options) {
             var sessionProject = (app.sessionState.currProject)
                 ? data.Project.createFromDeserialized(app.sessionState.currProject)
@@ -152,6 +165,14 @@
             this.currProject.phone = document.getElementById("phone").value;
         },
 
+        configurePrintDocument: function (existingId) {
+            if (existingId) {
+                this.printer.setDocument(document);
+            } else {
+                this.printer.setDocument(null);
+            }
+        },
+
         configureAppBar: function (existingId) {
             var fields = WinJS.Utilities.query("#projectDetailForm input, "
                 + "#projectDetailForm textarea, "
@@ -165,6 +186,7 @@
                 deleteProjectCommand.winControl.disabled = false;
                 goToTimeEntriesCommand.winControl.disabled = false;
                 goToDocumentsCommand.winControl.disabled = false;
+                printCommand.winControl.disabled = false;
 
                 if (this.currProject.isAddressSpecified()) {
                     goToDirectionsCommand.winControl.disabled = false;

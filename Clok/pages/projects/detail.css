@@ -35,6 +35,10 @@
     width: 430px;
 }
 
+#descriptionLabelAndField {
+    -ms-grid-row: 2;
+}
+
 #projectDescription {
     height: 60px;
     width: calc(90vw - 120px);
@@ -97,7 +101,8 @@
     }
 
     #projectDetailAppBar #goToDirectionsCommand,
-    #projectDetailAppBar #goToTimeEntriesCommand {
+    #projectDetailAppBar #goToTimeEntriesCommand,
+    #projectDetailAppBar #printCommand {
         display: none;
     }
 }
@@ -111,5 +116,42 @@
     #projectDetailForm {
         display: block;
         max-width: inherit;
+    }
+}
+
+
+@media print {
+    .fragment header[role=banner] {
+        -ms-grid-columns: 0px 1fr;
+    }
+
+    .detail section[role=main] {
+        margin-left: 0px;
+        margin-right: 0px;
+    }
+
+    .detail header .win-backbutton {
+        display: none;
+    }
+
+    #projectDetailForm .formField.required input,
+    #projectDetailForm .formField.required textarea,
+    #projectDetailForm .formField.required select {
+        border: inherit;
+        background-color: inherit;
+    }
+
+    #descriptionLabelAndField {
+        -ms-grid-row: 7;
+    }
+
+    #projectDescription {
+        height: 350px;
+        width: 90vw;
+    }
+
+    #currentTime,
+    #projectDetailAppBar {
+        display: none;
     }
 }

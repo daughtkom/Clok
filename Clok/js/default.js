@@ -68,6 +68,10 @@
                     title: "Clok Options",
                     href: "/settings/options.html"
                 },
+                "invoiceOptions": {
+                    title: "Invoice Options",
+                    href: "/settings/invoiceOptions.html"
+                },
                 "about": {
                     title: "About Clok",
                     href: "/settings/about.html"
@@ -145,6 +149,16 @@
 
         roamingSettings.values["hideTimeSheetClipboardMessage"] =
             roamingSettings.values["hideTimeSheetClipboardMessage"] || false;
+
+        roamingSettings.values["invoiceCompanyName"] =
+            roamingSettings.values["invoiceCompanyName"] || "Your Company Name";
+
+        roamingSettings.values["invoiceDefaultRate"] =
+            roamingSettings.values["invoiceDefaultRate"] || 50.00;
+
+        roamingSettings.values["invoicePaymentOptions"] =
+            roamingSettings.values["invoicePaymentOptions"] || "Payment is due within 30 days.";
+
     };
 
     app.start();

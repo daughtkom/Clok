@@ -309,7 +309,8 @@
                                 if (te.projectId !== projectId) return false;
                             }
 
-                            if (!te.project || te.project.status !== data.ProjectStatuses.Active) return false;
+                            if (!te.project || te.project.status !== data.ProjectStatuses.Active)
+                                return false;
 
                             return true;
                         });

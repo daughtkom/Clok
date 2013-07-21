@@ -8,7 +8,8 @@
     var appData = Windows.Storage.ApplicationData.current;
     var roamingSettings = appData.roamingSettings;
 
-    var apikey = "PUT_YOUR_KEY_HERE";
+    var apikey = "AmbZgXvHcklQ989fB1Gwv8XjkjSRdYqeY8xy1l1jBnWnl9O_PXlnlh8skWYwWJhA";
+    //var apikey = "PUT_YOUR_KEY_HERE";
     var apiEndpoint = "http://dev.virtualearth.net/REST/v1/";
     var xhrTimeout = roamingSettings.values["bingMapsTimeout"];
 
@@ -52,7 +53,9 @@
                                 durationUnit: resp.resourceSets[0].resources[0].durationUnit,
                                 travelDistance: resp.resourceSets[0].resources[0].travelDistance,
                                 travelDuration: resp.resourceSets[0].resources[0].travelDuration,
-                                bbox: resp.resourceSets[0].resources[0].bbox
+                                bbox: resp.resourceSets[0].resources[0].bbox,
+                                startCoords: resp.resourceSets[0].resources[0].routeLegs[0].actualStart.coordinates,
+                                endCoords: resp.resourceSets[0].resources[0].routeLegs[0].actualEnd.coordinates
                             }
 
                             var itineraryItems =

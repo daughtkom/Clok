@@ -73,6 +73,16 @@
                 tooltip:'Directions',
                 disabled: true}">
         </button>
+        <button
+            data-win-control="WinJS.UI.AppBarCommand"
+            data-win-options="{
+                id:'printCommand',
+                label:'Print',
+                icon:'url(/images/Print-small-sprites.png)',
+                section:'global',
+                tooltip:'Print',
+                disabled: true}">
+        </button>
     </div>
 
     <div class="detail fragment">
@@ -105,9 +115,8 @@
                         data-win-bind="winControl.checked: status Clok.Data.ProjectStatusToBoolConverter"></div>
                 </div>
 
-                <div class="formField" 
-                        style="-ms-grid-row: 2; -ms-grid-column: 1; -ms-grid-column-span: 3;">
-
+                <div class="formField" id="descriptionLabelAndField"
+                        style="-ms-grid-column: 1; -ms-grid-column-span: 3;">
                     <label for="projectDescription">Description</label><br />
                     <textarea id="projectDescription" data-win-bind="value: description"></textarea>
                 </div>

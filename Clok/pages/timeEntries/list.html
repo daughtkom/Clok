@@ -66,6 +66,17 @@
         <button
             data-win-control="WinJS.UI.AppBarCommand"
             data-win-options="{
+                id:'printInvoiceCommand',
+                label:'Print Invoice',
+                icon:'url(/images/Print-small-sprites.png)',
+                section:'global',
+                tooltip:'Print Invoice',
+                disabled: true}">
+        </button>
+
+        <button
+            data-win-control="WinJS.UI.AppBarCommand"
+            data-win-options="{
                 id:'graphTimeEntriesCommand',
                 label:'Graph',
                 icon:'url(/images/chart-small-sprites.png)',
@@ -123,6 +134,8 @@
                 </div>
             </div>
 
+            <iframe height="0" width="0" id="invoiceFrame" src="/templates/invoice.html"></iframe>
+
             <div id="timeEntriesContainer">
                 <div id="timeEntriesListViewPane">
                     <div
@@ -178,5 +191,6 @@
             </div>
         </section>
     </div>
+
 </body>
 </html>

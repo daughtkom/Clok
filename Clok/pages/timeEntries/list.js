@@ -1,5 +1,6 @@
 ﻿/// <reference path="/js/utilities.js" />
 /// <reference path="/js/extensions.js" />
+/// <reference path="/js/printing.js" />
 /// <reference path="/data/storage.js" />
 /// <reference path="/data/project.js" />
 /// <reference path="/data/timeEntry.js" />
@@ -15,6 +16,9 @@
         // This function is called whenever a user navigates to this page. It
         // populates the page elements with the app's data.
         ready: function (element, options) {
+            this.printer = new Clok.Printer();
+            this.printer.register("Invoice");
+
             this.bindListOfProjects(projectId);
             this.bindListOfProjects(filterProjectId);
 
@@ -30,6 +34,7 @@
             cancelTimeButton.onclick = this.cancelTimeButton_click.bind(this);
 
             addTimeEntryCommand.winControl.onclick = this.addTimeEntryCommand_click.bind(this);
+            printInvoiceCommand.winControl.onclick = this.printInvoiceCommand_click.bind(this);
             graphTimeEntriesCommand.winControl.onclick = this.graphTimeEntriesCommand_click.bind(this);
             deleteTimeEntriesCommand.winControl.onclick = this.deleteTimeEntriesCommand_click.bind(this);
             copyForExcelCommand.winControl.onclick = this.copyForExcelCommand_click.bind(this);
@@ -38,7 +43,7 @@
         },
 
         unload: function () {
-            // TODO: Respond to navigations away from this page.
+            this.printer.unregister();
         },
 
         updateLayout: function (element, viewState, lastViewState) {
@@ -73,6 +78,8 @@
 
         filter_changed: function (e) {
             this.updateResultsArea(searchInProgress);
+            this.printer.setDocument(null);
+            printInvoiceCommand.winControl.disabled = true;
 
             storage.timeEntries.getSortedFilteredTimeEntriesAsync(
                     this.filter.startDate,
@@ -84,6 +91,11 @@
                             timeEntryAppBar.winControl.show();
                             this.updateResultsArea(noMatchesFound);
                         } else {
+                            if (ClokUtilities.Guid.isGuid(this.filter.projectId)) {
+                                this.printer.setDocument(invoiceFrame.document);
+                                printInvoiceCommand.winControl.disabled = false;
+                            }
+                            this.updateInvoiceIframe(results);
                             this.updateResultsArea(timeEntriesListView);
                         }
                         this.showAddForm();
@@ -134,6 +146,27 @@
             timeEntriesListView.winControl.forceLayout();
         },
 
+        updateInvoiceIframe: function (results) {
+            var invoiceLines = results.map(function (item) {
+                return {
+                    elapsedSeconds: item.elapsedSeconds,
+                    dateWorked: item.dateWorked,
+                    notes: item.notes
+                };
+            });
+
+            var invoiceProject = results.getAt(0).project;
+
+            var invoiceData = {
+                project: invoiceProject,
+                lines: invoiceLines
+            }
+            invoiceFrame.postMessage(invoiceData, "ms-appx://" + document.location.host);
+        },
+
+        printInvoiceCommand_click: function (e) {
+            this.printer.print();
+        },
 
         addTimeButton_click: function (e) {
             var t = timeWorked.value;

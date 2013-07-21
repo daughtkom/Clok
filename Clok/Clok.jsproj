@@ -92,6 +92,7 @@
     <Content Include="images\logo.png" />
     <Content Include="images\Projects.png" />
     <Content Include="images\Excel-export-small-sprites.png" />
+    <Content Include="images\Print-small-sprites.png" />
     <Content Include="images\smalllogo.png" />
     <Content Include="images\splashscreen.png" />
     <Content Include="images\storelogo.png" />
@@ -102,6 +103,7 @@
     <Content Include="js\extendedSplash.js" />
     <Content Include="js\lib\flotr2\flotr2.js" />
     <Content Include="js\lib\flotr2\license.txt" />
+    <Content Include="js\printing.js" />
     <Content Include="js\utilities.js" />
     <Content Include="js\default.js" />
     <Content Include="js\extensions.js" />
@@ -158,8 +160,11 @@
     <Content Include="settings\IDBExplorer\table5.png" />
     <Content Include="settings\IDBExplorer\table6.png" />
     <Content Include="settings\IDBExplorer\throbber.gif" />
+    <Content Include="settings\invoiceOptions.html" />
+    <Content Include="settings\invoiceOptions.js" />
     <Content Include="settings\options.js" />
     <Content Include="settings\options.html" />
+    <Content Include="templates\invoice.html" />
     <None Include="Clok_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,5 @@
 ﻿/// <reference path="/data/bingMapsWrapper.js" />
+/// <reference path="/js/printing.js" />
 
 // For an introduction to the Page Control template, see the following documentation:
 // http://go.microsoft.com/fwlink/?LinkId=232511
@@ -15,6 +16,12 @@
         // This function is called whenever a user navigates to this page. It
         // populates the page elements with the app's data.
         ready: function (element, options) {
+            this.printer = new Clok.Printer();
+            this.printer.register("Directions");
+
+            bingCommand.onclick = this.bingCommand_click.bind(this);
+            printCommand.onclick = this.printCommand_click.bind(this);
+
             fromLocation.value = app.sessionState.directionsFromLocation || "";
             this.populateDestination(options);
             getDirectionsButton.onclick = this.getDirectionsButton_click.bind(this);
@@ -33,11 +40,12 @@
         },
 
         unload: function () {
-            // TODO: Respond to navigations away from this page.
             appData.removeEventListener("datachanged", this.appData_datachanged_boundThis);
 
             app.sessionState.directionsFromLocation = null;
             app.removeEventListener("checkpoint", this.app_checkpoint_boundThis);
+
+            this.printer.unregister();
         },
 
         checkpoint: function () {
@@ -67,6 +75,10 @@
         },
 
         getDirectionsButton_click: function (e) {
+            bingCommand.winControl.disabled = true;
+            printCommand.winControl.disabled = true;
+            this.printer.setDocument(null);
+
             if (fromLocation && fromLocation.value && this.dest) {
 
                 maps.getDirections(fromLocation.value, this.dest)
@@ -85,6 +97,19 @@
                                 = directions.itineraryItems.dataSource;
 
                             directionsListView.winControl.forceLayout();
+
+                            var printPage = "http://www.bing.com/maps/print.aspx?cp="
+                                + ((directions.startCoords[0] + directions.endCoords[0]) / 2) + ","
+                                + ((directions.startCoords[1] + directions.endCoords[1]) / 2)
+                                + "&pt=pf&rtp=pos." + directions.startCoords[0] + "_"
+                                + directions.startCoords[1] + "_" + fromLocation.value
+                                + "~pos." + directions.endCoords[0] + "_" + directions.endCoords[1]
+                                + "_" + this.dest
+
+                            this.printer.setAlternateContent(printPage);
+
+                            bingCommand.winControl.disabled = false;
+                            printCommand.winControl.disabled = false;
                         } else {
                             this.showDirectionResults(false);
                         }
@@ -105,9 +130,20 @@
                 WinJS.Utilities.removeClass(directionsError, "hidden");
             }
         },
-        
+
         appData_datachanged: function (args) {
             this.getDirectionsButton_click();
+        },
+
+        bingCommand_click: function (e) {
+            var webPage = "http://www.bing.com/maps/default.aspx?rtp=adr."
+                + fromLocation.value + "~adr." + this.dest;
+
+            Windows.System.Launcher.launchUriAsync(Windows.Foundation.Uri(webPage));
+        },
+
+        printCommand_click: function (e) {
+            this.printer.print();
         },
     });
 })();

@@ -13,6 +13,33 @@
     <script src="directions.js"></script>
 </head>
 <body>
+    <div id="directionsAppBar"
+        class="win-ui-dark"
+        data-win-control="WinJS.UI.AppBar"
+        data-win-options="{ sticky: true }">
+
+        <button
+            data-win-control="WinJS.UI.AppBarCommand"
+            data-win-options="{
+                id:'bingCommand',
+                label:'Bing Maps',
+                icon:'map',
+                section:'global',
+                tooltip:'Bing Maps',
+                disabled: true}">
+        </button>
+        <button
+            data-win-control="WinJS.UI.AppBarCommand"
+            data-win-options="{
+                id:'printCommand',
+                label:'Print',
+                icon:'url(/images/Print-small-sprites.png)',
+                section:'global',
+                tooltip:'Print',
+                disabled: true}">
+        </button>
+    </div>
+
     <div class="directions fragment">
         <header aria-label="Header content" role="banner">
             <button class="win-backbutton" aria-label="Back" disabled type="button"></button>
@@ -25,11 +52,11 @@
             <div id="directionsTemplate" data-win-control="WinJS.Binding.Template" style="display: none">
                 <div class="directionsItem">
                     <div class="directionsItem-instruction">
-                        <h3 class="directionsItem-instructionText" 
+                        <h3 class="directionsItem-instructionText"
                             data-win-bind="textContent: instructionText"></h3>
                     </div>
                     <div class="directionsItem-distance">
-                        <h2 class="directionsItem-formattedDistance" 
+                        <h2 class="directionsItem-formattedDistance"
                             data-win-bind="textContent: travelDistance 
                                 Clok.Data.TravelDistanceConverter"></h2>
                     </div>
@@ -54,13 +81,13 @@
 
                         <div id="totalDistance">
                             Total distance: 
-                            <span 
+                            <span
                                 data-win-bind="textContent: travelDistance 
                                     Clok.Data.TravelDistanceConverter"></span>
                         </div>
                         <div id="totalTime">
                             Est. travel time: 
-                            <span 
+                            <span
                                 data-win-bind="textContent: travelDuration 
                                     Clok.Data.TravelTimeConverter"></span>
                         </div>
