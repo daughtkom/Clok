@@ -1,5 +1,44 @@
 ﻿// ----------------------- Date extensions --------------------------------
 
+Date.prototype.addSeconds = function (n) {
+    var year = this.getFullYear();
+    var month = this.getMonth();
+    var date = this.getDate();
+    var hours = this.getHours();
+    var minutes = this.getMinutes();
+    var seconds = this.getSeconds();
+
+    seconds += n;
+
+    return new Date(year, month, date, hours, minutes, seconds);
+}
+
+Date.prototype.addMinutes = function (n) {
+    var year = this.getFullYear();
+    var month = this.getMonth();
+    var date = this.getDate();
+    var hours = this.getHours();
+    var minutes = this.getMinutes();
+    var seconds = this.getSeconds();
+
+    minutes += n;
+
+    return new Date(year, month, date, hours, minutes, seconds);
+}
+
+Date.prototype.addHours = function (n) {
+    var year = this.getFullYear();
+    var month = this.getMonth();
+    var date = this.getDate();
+    var hours = this.getHours();
+    var minutes = this.getMinutes();
+    var seconds = this.getSeconds();
+
+    hours += n;
+
+    return new Date(year, month, date, hours, minutes, seconds);
+}
+
 Date.prototype.addDays = function (n) {
     var year = this.getFullYear();
     var month = this.getMonth();

@@ -116,6 +116,9 @@
 
                     return nav.navigate(searchPageURI, { queryText: args.detail.queryText });
                 }
+            } else if ((args.detail.tileId.indexOf("Tile.Project.") >= 0)
+                    && (ClokUtilities.Guid.isGuid(args.detail.arguments))) {
+                nav.navigate("/pages/projects/detail.html", { id: args.detail.arguments });
             } else if (nav.location) {
                 nav.history.current.initialPlaceholder = true;
                 return nav.navigate(nav.location, nav.state);
@@ -149,6 +152,9 @@
 
         roamingSettings.values["hideTimeSheetClipboardMessage"] =
             roamingSettings.values["hideTimeSheetClipboardMessage"] || false;
+
+        roamingSettings.values["hideAlreadyRunningToastOnLaunchToggle"] =
+            roamingSettings.values["hideAlreadyRunningToastOnLaunchToggle"] || false;
 
         roamingSettings.values["invoiceCompanyName"] =
             roamingSettings.values["invoiceCompanyName"] || "Your Company Name";

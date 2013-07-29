@@ -15,6 +15,7 @@
             clockModeToggle.onchange = this.clockModeToggle_change;
 
             timeSheetClipboardMessageToggle.onchange = this.timeSheetClipboardMessageToggle_change;
+            showAlreadyRunningToastOnLaunchToggle.onchange = this.showAlreadyRunningToastOnLaunchToggle_change;
 
             bingMapsTimeout_2000.onchange = this.bingMapsTimeout_change;
             bingMapsTimeout_5000.onchange = this.bingMapsTimeout_change;
@@ -38,6 +39,9 @@
 
             timeSheetClipboardMessageToggle.winControl.checked =
                 !roamingSettings.values["hideTimeSheetClipboardMessage"];
+
+            showAlreadyRunningToastOnLaunchToggle.winControl.checked =
+                !roamingSettings.values["hideAlreadyRunningToastOnLaunchToggle"];
 
 
             switch (roamingSettings.values["bingMapsTimeout"]) {
@@ -78,6 +82,11 @@
         timeSheetClipboardMessageToggle_change: function (e) {
             roamingSettings.values["hideTimeSheetClipboardMessage"] =
                 (!timeSheetClipboardMessageToggle.winControl.checked);
+        },
+
+        showAlreadyRunningToastOnLaunchToggle_change: function (e) {
+            roamingSettings.values["hideAlreadyRunningToastOnLaunchToggle"] =
+                (!showAlreadyRunningToastOnLaunchToggle.winControl.checked);
         },
 
         bingMapsTimeout_change: function (e) {

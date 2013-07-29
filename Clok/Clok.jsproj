@@ -89,6 +89,7 @@
     <Content Include="images\filetypes\xls.png" />
     <Content Include="images\filetypes\xlsx.png" />
     <Content Include="images\filetypes\zip.png" />
+    <Content Include="images\widelogo.png" />
     <Content Include="images\logo.png" />
     <Content Include="images\Projects.png" />
     <Content Include="images\Excel-export-small-sprites.png" />

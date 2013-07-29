@@ -37,11 +37,18 @@
                     }"></div>
             </div>
             <div class="win-settings-section">
-                <h3>Message Dialogs</h3>
+                <h3>Dialogs and Notifications</h3>
                 <div id="timeSheetClipboardMessageToggle" 
                     data-win-control="WinJS.UI.ToggleSwitch" 
                     data-win-options="{
                         title:'Show clipboard message when copying time entries for Excel',
+                        labelOn: 'Show',
+                        labelOff: 'Do not show'
+                    }"></div>
+                <div id="showAlreadyRunningToastOnLaunchToggle" 
+                    data-win-control="WinJS.UI.ToggleSwitch" 
+                    data-win-options="{
+                        title:'Show a toast notification if the timer is already running when Clok is launched',
                         labelOn: 'Show',
                         labelOff: 'Do not show'
                     }"></div>

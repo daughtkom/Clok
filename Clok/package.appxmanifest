@@ -15,8 +15,8 @@
   </Resources>
   <Applications>
     <Application Id="App" StartPage="default.html">
-      <VisualElements DisplayName="Clok" Logo="images\logo.png" SmallLogo="images\smalllogo.png" Description="Clok" ForegroundText="light" BackgroundColor="#464646">
-        <DefaultTile ShowName="allLogos" />
+      <VisualElements DisplayName="Clok" Logo="images\logo.png" SmallLogo="images\smalllogo.png" Description="Clok" ForegroundText="light" BackgroundColor="#464646" ToastCapable="true">
+        <DefaultTile ShowName="allLogos" WideLogo="images\widelogo.png" />
         <SplashScreen Image="images\splashscreen.png" />
       </VisualElements>
       <Extensions>

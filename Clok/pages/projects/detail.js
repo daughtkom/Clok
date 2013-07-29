@@ -7,6 +7,8 @@
     "use strict";
 
     var app = WinJS.Application;
+    var startScreen = Windows.UI.StartScreen;
+    var secondaryTile = startScreen.SecondaryTile;
     var data = Clok.Data;
     var storage = Clok.Data.Storage;
 
@@ -22,6 +24,8 @@
             });
 
             this.setCurrentProject(options);
+            this.secondaryTileId = "Tile.Project." + this.currProject.id.replace(/-/g, ".");
+            this.updatePinUnpinCommand();
 
             this.configureAppBar(options && options.id);
             this.configurePrintDocument(options && options.id);
@@ -36,6 +40,7 @@
             goToTimeEntriesCommand.onclick = this.goToTimeEntriesCommand_click.bind(this);
             goToDocumentsCommand.onclick = this.goToDocumentsCommand_click.bind(this);
             goToDirectionsCommand.onclick = this.goToDirectionsCommand_click.bind(this);
+            pinUnpinCommand.onclick = this.pinUnpinCommand_click.bind(this);
             printCommand.onclick = this.printCommand_click.bind(this);
 
             this.app_checkpoint_boundThis = this.checkpoint.bind(this);
@@ -123,6 +128,76 @@
             }
         },
 
+        updatePinUnpinCommand: function () {
+            if (secondaryTile.exists(this.secondaryTileId)) {
+                pinUnpinCommand.winControl.icon = "unpin";
+                pinUnpinCommand.winControl.label = "Unpin from Start";
+                pinUnpinCommand.winControl.tooltip = "Unpin from Start";
+            } else {
+                pinUnpinCommand.winControl.icon = "pin";
+                pinUnpinCommand.winControl.label = "Pin to Start";
+                pinUnpinCommand.winControl.tooltip = "Pin to Start";
+            }
+        },
+
+        pinToStart: function () {
+            // build the tile that will be added to the Start screen
+            var uriLogo = new Windows.Foundation.Uri("ms-appx:///images/Projects.png");
+            var displayName = this.currProject.name + " (" + this.currProject.clientName + ")";
+
+            var tile = new secondaryTile(
+                this.secondaryTileId,
+                displayName,
+                displayName,
+                this.currProject.id,
+                startScreen.TileOptions.showNameOnLogo,
+                uriLogo);
+
+            tile.foregroundText = startScreen.ForegroundText.light;
+
+            // determine where to display the request to the user
+            var buttonRect = pinUnpinCommand.getBoundingClientRect();
+            var buttonCoordinates = {
+                x: buttonRect.left,
+                y: buttonRect.top,
+                width: buttonRect.width,
+                height: buttonRect.height
+            };
+            var placement = Windows.UI.Popups.Placement.above;
+
+            // make the request and update the app bar
+            tile.requestCreateForSelectionAsync(buttonCoordinates, placement)
+                .done(function (isCreated) {
+                    this.updatePinUnpinCommand();
+                }.bind(this));
+        },
+
+        unpinFromStart: function () {
+            var buttonRect = pinUnpinCommand.getBoundingClientRect();
+            var buttonCoordinates = {
+                x: buttonRect.left,
+                y: buttonRect.top,
+                width: buttonRect.width,
+                height: buttonRect.height
+            };
+            var placement = Windows.UI.Popups.Placement.above;
+
+            var tile = new secondaryTile(this.secondaryTileId);
+
+            tile.requestDeleteForSelectionAsync(buttonCoordinates, placement)
+                .done(function (success) {
+                    this.updatePinUnpinCommand();
+                }.bind(this));
+        },
+
+        pinUnpinCommand_click: function (e) {
+            if (!secondaryTile.exists(this.secondaryTileId)) {
+                this.pinToStart();
+            } else {
+                this.unpinFromStart();
+            }
+        },
+
         printCommand_click: function (e) {
             //window.print();
             this.printer.print();
@@ -186,6 +261,7 @@
                 deleteProjectCommand.winControl.disabled = false;
                 goToTimeEntriesCommand.winControl.disabled = false;
                 goToDocumentsCommand.winControl.disabled = false;
+                pinUnpinCommand.winControl.disabled = false;
                 printCommand.winControl.disabled = false;
 
                 if (this.currProject.isAddressSpecified()) {

@@ -33,6 +33,7 @@
                 },
                 set: function (value) {
                     this._startStops = value;
+                    this._updateTimer();
                 }
             },
 

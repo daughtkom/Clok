@@ -1,4 +1,5 @@
-﻿/// <reference path="/js/extensions.js" />
+﻿/// <reference path="/js/utilities.js" />
+/// <reference path="/js/extensions.js" />
 /// <reference path="/controls/js/clockControl.js" />
 /// <reference path="/data/storage.js" />
 /// <reference path="/data/timeEntry.js" />
@@ -8,6 +9,11 @@
 
     var appData = Windows.Storage.ApplicationData.current;
     var localSettings = appData.localSettings;
+    var roamingSettings = appData.roamingSettings;
+
+    var notifications = Windows.UI.Notifications;
+    var notificationManager = notifications.ToastNotificationManager;
+    var tileUpdateManager = notifications.TileUpdateManager;
 
     var nav = WinJS.Navigation;
     var storage = Clok.Data.Storage;
@@ -199,8 +205,12 @@
         setupTimerRelatedControls: function () {
             if (this.timerIsRunning) {
                 this.startTimer();
+                this.scheduleToast();
+                this.enableLiveTile();
             } else {
                 this.stopTimer();
+                this.unscheduleToast();
+                this.disableLiveTile();
             }
 
             this.enableOrDisableButtons();
@@ -266,6 +276,9 @@
 
                 if (elapsedTimeClock.winControl.isRunning) {
                     this.startTimer();
+                    if (!roamingSettings.values["hideAlreadyRunningToastOnLaunchToggle"]) {
+                        this.showLocalToast();
+                    }
                 }
             }
         },
@@ -281,6 +294,113 @@
             }
 
             return index;
-        }
+        },
+
+        getStillRunningToastContent: function (seconds) {
+            seconds = seconds || elapsedTimeClock.winControl.timerValue;
+
+            if (elapsedTimeClock.winControl.isRunning && seconds > 0) {
+                var hours = Math.floor(Clok.Utilities.SecondsToHours(seconds, false));
+
+                var template = notifications.ToastTemplateType.toastImageAndText02;
+                var toastContent = notificationManager.getTemplateContent(template);
+                
+                // image
+                var imageNodes = toastContent.getElementsByTagName("image");
+                imageNodes[0].setAttribute("src", "ms-appx:///images/Clock-Running.png");
+
+                // text
+                var textNodes = toastContent.getElementsByTagName("text");
+                textNodes[0].appendChild(toastContent.createTextNode("Clok is running"));
+                textNodes[1].appendChild(toastContent.createTextNode(
+                    "Clok has been running for more than " + hours + " hours."));
+
+                // audio
+                //var toastNode = toastContent.selectSingleNode("/toast");
+                //toastNode.setAttribute("duration", "long");
+
+                //var audio = toastContent.createElement("audio");
+                //audio.setAttribute("src", "ms-winsoundevent:Notification.Looping.Call");
+                //audio.setAttribute("loop", "true");
+
+                //toastNode.appendChild(audio);
+
+                return toastContent;
+            }
+        },
+
+        showLocalToast: function () {
+            var toastContent = this.getStillRunningToastContent();
+
+            if (toastContent) {
+                var toast = new notifications.ToastNotification(toastContent);
+                notificationManager.createToastNotifier().show(toast);
+            }
+        },
+
+        scheduleToast: function () {
+            var reminderThreshold = 8; // hours
+            var toastContent = this.getStillRunningToastContent(reminderThreshold * 60 * 60);
+
+            if (toastContent) {
+                var seconds = elapsedTimeClock.winControl.timerValue;
+                var notifyTime = (new Date()).addSeconds(-seconds).addHours(reminderThreshold);
+                //var notifyTime = (new Date()).addSeconds(20);
+                if (notifyTime.getTime() > (new Date()).getTime()) {
+                    var snoozeTime = 30 * 60 * 1000; // 30 min
+                    var snoozeCount = 5;
+                    var toast = new notifications.ScheduledToastNotification(
+                        toastContent,
+                        notifyTime,
+                        snoozeTime,
+                        snoozeCount);
+                    toast.id = "IsRunningToast";
+                    notificationManager.createToastNotifier().addToSchedule(toast);
+                }
+            }
+        },
+
+        unscheduleToast: function () {
+            var notifier = notificationManager.createToastNotifier();
+            var scheduled = notifier.getScheduledToastNotifications();
+
+            for (var i = 0, len = scheduled.length; i < len; i++) {
+                if (scheduled[i].id === "IsRunningToast") {
+                    notifier.removeFromSchedule(scheduled[i]);
+                }
+            }
+        },
+
+        enableLiveTile: function () {
+            var tileContentString = "<tile>"
+                + "<visual>"
+                + "<binding template=\"TileSquarePeekImageAndText04\" branding=\"logo\">"
+                + "<image id=\"1\" src=\"ms-appx:///images/Clock-Running.png\"/>"
+                + "<text id=\"1\">Clok is running</text>"
+                + "</binding>  "
+                + "<binding template=\"TileWidePeekImage06\" branding=\"none\">"
+                + "<image id=\"1\" src=\"ms-appx:///images/widelogo.png\"/>"
+                + "<image id=\"2\" src=\"ms-appx:///images/Clock-Running.png\"/>"
+                + "<text id=\"1\">Clok is running</text>"
+                + "</binding>"
+                + "</visual>"
+                + "</tile>";
+
+            var tileContentXml = new Windows.Data.Xml.Dom.XmlDocument();
+            tileContentXml.loadXml(tileContentString);
+
+            // create a tile notification
+            var tile = new notifications.TileNotification(tileContentXml);
+
+            // send the notification to the app's application tile
+            tileUpdateManager.createTileUpdaterForApplication().update(tile);
+
+
+        },
+
+        disableLiveTile: function () {
+            tileUpdateManager.createTileUpdaterForApplication().clear();
+        },
+
     });
 })();
