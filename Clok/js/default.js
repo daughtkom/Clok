@@ -119,6 +119,16 @@
             } else if ((args.detail.tileId.indexOf("Tile.Project.") >= 0)
                     && (ClokUtilities.Guid.isGuid(args.detail.arguments))) {
                 nav.navigate("/pages/projects/detail.html", { id: args.detail.arguments });
+            } else if (args.detail.tileId === "Camera") {
+                // add home to the history so the user can click a back arrow to get to the dashboard
+                if (!nav.location) {
+                    nav.history.current = {
+                        location: Application.navigator.home,
+                        initialState: {}
+                    };
+                }
+
+                nav.navigate("/pages/documents/cameraCapture.html");
             } else if (nav.location) {
                 nav.history.current.initialPlaceholder = true;
                 return nav.navigate(nav.location, nav.state);

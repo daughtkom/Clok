@@ -15,6 +15,9 @@
     var notificationManager = notifications.ToastNotificationManager;
     var tileUpdateManager = notifications.TileUpdateManager;
 
+    var startScreen = Windows.UI.StartScreen;
+    var secondaryTile = startScreen.SecondaryTile;
+
     var nav = WinJS.Navigation;
     var storage = Clok.Data.Storage;
 
@@ -35,6 +38,8 @@
             saveTimeButton.onclick = this.saveTimeButton_click.bind(this);
             discardTimeButton.onclick = this.discardTimeButton_click.bind(this);
 
+            cameraMenuItem.onclick = this.cameraMenuItem_click.bind(this);
+            cameraMenuItem.oncontextmenu = this.cameraMenuItem_contextmenu.bind(this);
             projectsMenuItem.onclick = this.projectsMenuItem_click.bind(this);
             timesheetMenuItem.onclick = this.timesheetMenuItem_click.bind(this);
 
@@ -242,6 +247,89 @@
             editProjectButton.disabled = (project.options[project.selectedIndex].value === "");
         },
 
+        cameraMenuItem_click: function (e) {
+            nav.navigate("/pages/documents/cameraCapture.html");
+        },
+
+        cameraMenuItem_contextmenu: function (e) {
+            var pinMenu = new Windows.UI.Popups.PopupMenu();
+
+            var pinCommand = new Windows.UI.Popups.UICommand("Pin to Start");
+            pinCommand.id = "pin";
+
+            var unpinCommand = new Windows.UI.Popups.UICommand("Unpin from Start");
+            unpinCommand.id = "unpin";
+
+            if (!secondaryTile.exists("Camera")) {
+                pinMenu.commands.append(pinCommand);
+            } else {
+                pinMenu.commands.append(unpinCommand);
+            }
+
+
+            var buttonRect = cameraMenuItem.getBoundingClientRect();
+            var buttonCoordinates = {
+                x: buttonRect.left,
+                y: buttonRect.top,
+                width: buttonRect.width,
+                height: buttonRect.height
+            };
+
+            pinMenu.showForSelectionAsync(buttonCoordinates)
+                .then(function (command) {
+                    if (command) {
+                        if (command.id === "pin") {
+                            this.pinCameraToStart();
+                        } else if (command.id === "unpin") {
+                            this.unpinCameraFromStart();
+                        }
+                    }
+                }.bind(this));
+
+        },
+
+        pinCameraToStart: function () {
+            var uriLogo = new Windows.Foundation.Uri("ms-appx:///images/Camera.png");
+            var displayName = "Clok Camera";
+
+            var tile = new secondaryTile(
+                "Camera",
+                displayName,
+                displayName,
+                "camera",
+                startScreen.TileOptions.showNameOnLogo,
+                uriLogo);
+
+            tile.foregroundText = startScreen.ForegroundText.light;
+
+            var buttonRect = cameraMenuItem.getBoundingClientRect();
+            var buttonCoordinates = {
+                x: buttonRect.left,
+                y: buttonRect.top,
+                width: buttonRect.width,
+                height: buttonRect.height
+            };
+            var placement = Windows.UI.Popups.Placement.above;
+
+            tile.requestCreateForSelectionAsync(buttonCoordinates, placement).done();
+        },
+
+
+        unpinCameraFromStart: function () {
+            var buttonRect = cameraMenuItem.getBoundingClientRect();
+            var buttonCoordinates = {
+                x: buttonRect.left,
+                y: buttonRect.top,
+                width: buttonRect.width,
+                height: buttonRect.height
+            };
+            var placement = Windows.UI.Popups.Placement.above;
+
+            var tile = new secondaryTile("Camera");
+            tile.requestDeleteForSelectionAsync(buttonCoordinates, placement).done();
+        },
+
+
         projectsMenuItem_click: function (e) {
             nav.navigate("/pages/projects/list.html");
         },
@@ -304,7 +392,7 @@
 
                 var template = notifications.ToastTemplateType.toastImageAndText02;
                 var toastContent = notificationManager.getTemplateContent(template);
-                
+
                 // image
                 var imageNodes = toastContent.getElementsByTagName("image");
                 imageNodes[0].setAttribute("src", "ms-appx:///images/Clock-Running.png");

@@ -22,6 +22,11 @@
             bingCommand.onclick = this.bingCommand_click.bind(this);
             printCommand.onclick = this.printCommand_click.bind(this);
 
+            this.currentCoords = null;
+            getLocationButton.disabled = true;
+            this.checkForGeoposition();
+            getLocationButton.onclick = this.getLocationButton_click.bind(this);
+
             fromLocation.value = app.sessionState.directionsFromLocation || "";
             this.populateDestination(options);
             getDirectionsButton.onclick = this.getDirectionsButton_click.bind(this);
@@ -118,6 +123,26 @@
                     }.bind(this));
             } else {
                 this.showDirectionResults(false);
+            }
+        },
+
+        getLocationButton_click: function (e) {
+            fromLocation.value = this.currentCoords.latitude.toString()
+                + ", " + this.currentCoords.longitude.toString();
+        },
+
+        checkForGeoposition: function () {
+            var locator = new Windows.Devices.Geolocation.Geolocator();
+            var positionStatus = Windows.Devices.Geolocation.PositionStatus;
+
+            if (locator != null) {
+                locator.getGeopositionAsync()
+                    .then(function (position) {
+                        this.currentCoords = position.coordinate;
+                        if (this.currentCoords.accuracy <= 200) {
+                            getLocationButton.disabled = (locator.locationStatus !== positionStatus.ready);
+                        }
+                    }.bind(this));
             }
         },
 

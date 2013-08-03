@@ -62,6 +62,7 @@
     <Content Include="data\project.js" />
     <Content Include="data\storage.js" />
     <Content Include="images\background.png" />
+    <Content Include="images\camera-placeholder.png" />
     <Content Include="images\Camera.png" />
     <Content Include="images\chart-small-sprites.png" />
     <Content Include="images\Clock-Running.png" />
@@ -110,6 +111,9 @@
     <Content Include="js\extensions.js" />
     <Content Include="js\navigator.js" />
     <Content Include="js\workers\timeGraphWorker.js" />
+    <Content Include="pages\documents\cameraCapture.css" />
+    <Content Include="pages\documents\cameraCapture.html" />
+    <Content Include="pages\documents\cameraCapture.js" />
     <Content Include="pages\documents\library.css" />
     <Content Include="pages\documents\library.html" />
     <Content Include="pages\documents\library.js" />
