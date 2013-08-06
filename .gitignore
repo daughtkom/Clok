@@ -1,6 +1,5 @@
 SyncToy_*.dat
 *.gitignore.*
-assets/
 AppPackages/
 Clok_StoreKey.pfx
 Package.StoreAssociation.xml
