@@ -15,8 +15,8 @@
   </Resources>
   <Applications>
     <Application Id="App" StartPage="default.html">
-      <VisualElements DisplayName="Clok Time Sheets" Logo="images\logo.png" SmallLogo="images\smalllogo.png" Description="Clok" ForegroundText="light" BackgroundColor="#3399aa" ToastCapable="true">
-        <DefaultTile ShowName="allLogos" WideLogo="images\widelogo.png" />
+      <VisualElements DisplayName="Clok Time Sheets" Logo="images\logo.png" SmallLogo="images\smalllogo.png" Description="Clok is a time sheet application for the Windows Store.  It is a sample application being developed in conjunction with Beginning Windows Store Application Development: HTML and JavaScript Edition (Apress 2013)." ForegroundText="light" BackgroundColor="#3399aa" ToastCapable="true">
+        <DefaultTile ShowName="allLogos" WideLogo="images\widelogo.png" ShortName="Clok" />
         <SplashScreen Image="images\splashscreen.png" />
       </VisualElements>
       <Extensions>
