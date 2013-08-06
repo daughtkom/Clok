@@ -1,4 +1,4 @@
-/*
+﻿/*
 *	IndexedDB Explorer
 *	for //Build
 */

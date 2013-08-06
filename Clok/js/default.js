@@ -23,7 +23,7 @@
                 args.detail.splashScreen,
                 function (e) {
                     args.setPromise(Clok.Data.Storage.initialize());
-                    simulateDelay(500);
+                    //simulateDelay(500);
                     launchActivation(args);
                 });
         }

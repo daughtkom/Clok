@@ -47,12 +47,15 @@
     <TargetPlatformIdentifier>Windows</TargetPlatformIdentifier>
     <TargetPlatformVersion>8.0</TargetPlatformVersion>
     <DefaultLanguage>en-US</DefaultLanguage>
-    <PackageCertificateKeyFile>Clok_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateKeyFile>Clok_StoreKey.pfx</PackageCertificateKeyFile>
+    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <PackageCertificateThumbprint>700A3E85CDE10C37CBAC4C209BEFD5114E0046DB</PackageCertificateThumbprint>
   </PropertyGroup>
   <ItemGroup>
     <AppxManifest Include="package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
+    <None Include="Clok_StoreKey.pfx" />
     <Content Include="controls\js\clockControl.js" />
     <Content Include="controls\js\timerControl.js" />
     <Content Include="css\default.css" />
@@ -113,6 +116,7 @@
     <Content Include="js\extensions.js" />
     <Content Include="js\navigator.js" />
     <Content Include="js\workers\timeGraphWorker.js" />
+    <None Include="Package.StoreAssociation.xml" />
     <Content Include="pages\documents\cameraCapture.css" />
     <Content Include="pages\documents\cameraCapture.html" />
     <Content Include="pages\documents\cameraCapture.js" />

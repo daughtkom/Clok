@@ -1,4 +1,4 @@
-/*
+﻿/*
  * jsTree 1.0-rc3
  * http://jstree.com/
  *

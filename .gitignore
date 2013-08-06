@@ -1,6 +1,9 @@
 SyncToy_*.dat
 *.gitignore.*
 assets/
+AppPackages/
+Clok_StoreKey.pfx
+
 
 #################
 ## Eclipse
