@@ -3,6 +3,7 @@ SyncToy_*.dat
 assets/
 AppPackages/
 Clok_StoreKey.pfx
+Package.StoreAssociation.xml
 
 
 #################
