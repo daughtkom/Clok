@@ -61,6 +61,7 @@
     <Content Include="data\timeEntry.js" />
     <Content Include="data\project.js" />
     <Content Include="data\storage.js" />
+    <Content Include="images\about-icon.png" />
     <Content Include="images\background.png" />
     <Content Include="images\camera-placeholder.png" />
     <Content Include="images\Camera.png" />
@@ -90,6 +91,7 @@
     <Content Include="images\filetypes\xls.png" />
     <Content Include="images\filetypes\xlsx.png" />
     <Content Include="images\filetypes\zip.png" />
+    <Content Include="images\options-icon.png" />
     <Content Include="images\widelogo.png" />
     <Content Include="images\logo.png" />
     <Content Include="images\Projects.png" />
